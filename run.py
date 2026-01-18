@@ -81,7 +81,7 @@ def get_ranked_beatmap_ids(path):
   
   return ranked_beatmap_ids
 
-def _run(replay, score, beatmap, beatmap_id, mods="??", save=False, logging=False, deeplogging=False):
+def _run(replay, score, beatmap, beatmap_id, mods="??", save=False, logging=False, deeplogging=False, output="data.txt"):
   object_c = object_count(deepcopy(beatmap))
 
   # print(score)
@@ -169,12 +169,12 @@ def _run(replay, score, beatmap, beatmap_id, mods="??", save=False, logging=Fals
     print(f"ideal CL multiplier:\t{ratio}")
 
   if save:
-    with open("data.txt", "a") as f:
-        f.write(f"https://osu.ppy.sh/beatmaps/{beatmap_id}\t{replay.user_id}\t{stable_score_estimate}\t{lazer_score}\t{mods}\n")
+    with open(output, "a") as f:
+        f.write(f"https://osu.ppy.sh/beatmaps/{beatmap_id}\t{replay.user_id}\t{stable_score_estimate}\t{lazer_score}\t{mods}\t{stable_accuracy}\t{lazer_accuracy}\n")
 
 allowed_mods = { "NM", "EZ", "HD", "HR", "DT", "HT", "NC", "FL", "SO", "SD", "PF" }
 
-def run(beatmap_ids=None, amount=1, start = 1, end=50, sample_size=10, path="beatmap_ids.json", save=False, logging=False, deeplogging=False):
+def run(beatmap_ids=None, amount=1, start = 1, end=50, sample_size=10, path="all_beatmap_ids.json", save=False, logging=False, deeplogging=False, output="data.txt"):
   if beatmap_ids is None:
     ranked_beatmap_ids = get_ranked_beatmap_ids(path)
     beatmap_ids = random.sample(ranked_beatmap_ids, min(amount, len(ranked_beatmap_ids)))
@@ -209,9 +209,9 @@ def run(beatmap_ids=None, amount=1, start = 1, end=50, sample_size=10, path="bea
         if beatmap is None:
           beatmap = replay.beatmap(library)
 
-        _run(replay, score, beatmap, beatmap_id, mods=mods, save=save, logging=logging, deeplogging=deeplogging)
+        _run(replay, score, beatmap, beatmap_id, mods=mods, save=save, logging=logging, deeplogging=deeplogging, output=output)
 
-        sleep(6)
+        sleep(5)
       except ReplayUnavailableException:
         print("missing replay.", "beatmap:", beatmap_id, "user_id:", user_id)
       except KeyboardInterrupt:
@@ -219,15 +219,16 @@ def run(beatmap_ids=None, amount=1, start = 1, end=50, sample_size=10, path="bea
         pass
       except:
         print("unable to process replay.", "beatmap:", beatmap_id, "user_id:", user_id)
+        sleep(12)
 
-def run_user(beatmap_id, user_id, save=False, logging=False, deeplogging=False):
+def run_user(beatmap_id, user_id, save=False, logging=False, deeplogging=False, output="data.txt"):
   replay = cg.ReplayMap(beatmap_id, user_id)
   beatmap = replay.beatmap(library)
 
   score = api.beatmap_user_score(beatmap_id, user_id, mode="osu", mods=replay.mods).score
 
   print(f"processing user {user_id} on beatmap {beatmap_id} with mods: {score.mods}...")
-  _run(replay, score, beatmap, beatmap_id, save=save, logging=logging, deeplogging=deeplogging)
+  _run(replay, score, beatmap, beatmap_id, save=save, logging=logging, deeplogging=deeplogging, output=output)
 
 def main():
   parser = argparse.ArgumentParser()
@@ -241,6 +242,8 @@ def main():
   parser.add_argument('--start', type=int, default=1, help="The leaderboard spot to start from")
   parser.add_argument('--end', type=int, default=100, help="The leaderboard spot to end on")
   parser.add_argument('--sample-size', type=int, default=10, help="Amount of replays to use for each beatmap")
+  parser.add_argument('--path', type=str, default="all_beatmap_ids.json", help="Path to ranked beatmap ids file")
+  parser.add_argument('--output', type=str, default="data.txt", help="Path to output data file")
 
   args = parser.parse_args()
 
@@ -252,7 +255,7 @@ def main():
     run_user(args.beatmap_ids[0], args.user_id, save=args.save, logging=args.logging, deeplogging=args.deeplogging)
     return
   
-  run(beatmap_ids=args.beatmap_ids, amount=args.count, start=args.start, end=args.end, sample_size=args.sample_size, save=args.save, logging=args.logging, deeplogging=args.deeplogging)
+  run(beatmap_ids=args.beatmap_ids, amount=args.count, start=args.start, end=args.end, sample_size=args.sample_size, save=args.save, logging=args.logging, deeplogging=args.deeplogging, path=args.path, output=args.output)
 
 if __name__ == "__main__":
   main()
