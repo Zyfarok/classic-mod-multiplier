@@ -174,7 +174,7 @@ def _run(replay, score, beatmap, beatmap_id, mods="??", save=False, logging=Fals
 
 allowed_mods = { "NM", "EZ", "HD", "HR", "DT", "HT", "NC", "FL", "SO", "SD", "PF" }
 
-def run(beatmap_ids=None, amount=1, start = 1, end=50, sample_size=10, path="all_beatmap_ids.json", save=False, logging=False, deeplogging=False, output="data.txt"):
+def run(beatmap_ids=None, amount=1, start = 1, end=50, sample_size=10, path="beatmap_ids/all.json", save=False, logging=False, deeplogging=False, output="data.txt"):
   if beatmap_ids is None:
     ranked_beatmap_ids = get_ranked_beatmap_ids(path)
     beatmap_ids = random.sample(ranked_beatmap_ids, min(amount, len(ranked_beatmap_ids)))
@@ -242,7 +242,7 @@ def main():
   parser.add_argument('--start', type=int, default=1, help="The leaderboard spot to start from")
   parser.add_argument('--end', type=int, default=100, help="The leaderboard spot to end on")
   parser.add_argument('--sample-size', type=int, default=10, help="Amount of replays to use for each beatmap")
-  parser.add_argument('--path', type=str, default="all_beatmap_ids.json", help="Path to ranked beatmap ids file")
+  parser.add_argument('--path', type=str, default="beatmap_ids/all.json", help="Path to ranked beatmap ids file")
   parser.add_argument('--output', type=str, default="data.txt", help="Path to output data file")
 
   args = parser.parse_args()
