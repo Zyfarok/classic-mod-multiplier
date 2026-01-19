@@ -190,6 +190,7 @@ def run(beatmap_ids=None, amount=1, start = 1, end=50, sample_size=10, path="bea
       if (score.legacy_score_id is None) and all(mod.acronym in allowed_mods for mod in score.mods)
     ][max(start - 1, 0):end]
     beatmap_scores = random.sample(beatmap_scores, min(sample_size, len(beatmap_scores)))
+    sleep(3)
 
     beatmap = None
     for (user_id, score) in beatmap_scores:
