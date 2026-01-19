@@ -84,11 +84,12 @@ def get_ranked_beatmap_ids(path):
 def _run(replay, score, beatmap, beatmap_id, mods="??", save=False, logging=False, deeplogging=False, output="data.txt"):
   object_c = object_count(deepcopy(beatmap))
 
-  # print(score)
-  lazer_score = score.total_score_without_mods
-  lazer_accuracy = score.accuracy
   if deeplogging:
-    print(f"score.statistics: {score.statistics}")
+    print(f"score: {score}")
+  lazer_score = score.total_score_without_mods
+  if lazer_score is None and len(score.mods) == 0:
+    lazer_score = score.total_score
+  lazer_accuracy = score.accuracy
   lazer_bonus_score = 0
   lazer_bonus_score += 0 if score.statistics.large_bonus is None else score.statistics.large_bonus * 50
   lazer_bonus_score += 0 if score.statistics.small_bonus is None else score.statistics.small_bonus * 10
@@ -215,6 +216,7 @@ def run(beatmap_ids=None, amount=1, start = 1, end=50, sample_size=10, path="bea
         sleep(5)
       except ReplayUnavailableException:
         print("missing replay.", "beatmap:", beatmap_id, "user_id:", user_id)
+        sleep(5)
       except KeyboardInterrupt:
         sys.exit()
         pass
